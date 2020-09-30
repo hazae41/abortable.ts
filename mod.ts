@@ -16,6 +16,12 @@ export namespace Abort {
   export function isAbortable<T>(promise: Promise<T>): promise is Abortable<T> {
     return typeof (promise as any).abort === "function"
   }
+
+  export function fetch(input: string | URL | Request, init?: RequestInit) {
+    return new Abortable((ok, err, signal) => {
+      window.fetch(input, { signal, ...init }).then(ok, err)
+    })
+  }
 }
 
 export class Abortable<T> implements Promise<T> {
@@ -25,12 +31,13 @@ export class Abortable<T> implements Promise<T> {
   constructor(
     executor: (
       resolve: (value?: T | PromiseLike<T>) => void,
-      reject: (reason?: any) => void
+      reject: (reason?: any) => void,
+      signal?: AbortSignal
     ) => (() => void) | void
   ) {
     const { signal } = this.aborter
     this.promise = new Promise<T>((resolve, reject) => {
-      const clean = executor(resolve, reject)
+      const clean = executor(resolve, reject, signal)
 
       signal.onabort = () => {
         if (clean) clean();

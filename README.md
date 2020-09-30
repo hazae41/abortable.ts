@@ -36,6 +36,15 @@ try{
 }
 ```
 
+## Usage with fetch
+
+```typescript
+import { Abort, Abortable } from "https://deno.land/x/abortable/mod.ts"
+
+const request = Abort.fetch("...", { ... })
+request.abort()
+```
+
 ## Usage with race
 
 ```typescript
