@@ -4,13 +4,17 @@ Promises with an abort() method and a cleanup function.
 
 ## Install 
 
-> deno cache -r https://deno.land/x/abortable/mod.ts
+    deno cache -r https://deno.land/x/abortable/mod.ts
 
 ## Test
 
-> deno run https://deno.land/x/abortable/test/catch.ts
+Catch
 
-> deno run https://deno.land/x/abortable/test/race.ts
+    deno run https://deno.land/x/abortable/test/catch.ts
+
+Race
+
+    deno run https://deno.land/x/abortable/test/race.ts
 
 ## Simple usage
 
