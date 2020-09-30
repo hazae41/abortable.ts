@@ -19,6 +19,8 @@ Race
 ## Simple usage
 
 ```typescript
+import { Abortable } from "https://deno.land/x/abortable/mod.ts"
+
 const timeout = new Abortable((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
@@ -37,6 +39,8 @@ try{
 ## Usage with race
 
 ```typescript
+import { Abort, Abortable } from "https://deno.land/x/abortable/mod.ts"
+
 const first = new Abortable((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
