@@ -18,7 +18,7 @@ export namespace Abort {
   }
 
   export function fetch(input: string | URL | Request, init?: RequestInit) {
-    return new Abortable((ok, err, signal) => {
+    return new Abortable<Response>((ok, err, signal) => {
       window.fetch(input, { signal, ...init }).then(ok, err)
     })
   }
