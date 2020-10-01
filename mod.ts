@@ -1,7 +1,3 @@
-export interface Abortable<T> extends Promise<T> {
-  abort(): void
-}
-
 export namespace Abort {
   export function race<T>(promises: Promise<T>[]) {
     return Promise.race(promises)
@@ -13,30 +9,41 @@ export namespace Abort {
       if (isAbortable(promise)) promise.abort()
   }
 
-  export function isAbortable<T>(promise: Promise<T>): promise is Abortable<T> {
-    return typeof (promise as any).abort === "function"
-  }
-
   export function fetch(input: string | URL | Request, init?: RequestInit) {
-    return new Abortable<Response>((ok, err, signal) => {
-      window.fetch(input, { signal, ...init }).then(ok, err)
-    })
+    const aborter = new AbortController()
+    const signal = aborter.signal
+    const promise = window.fetch(input, { signal, ...init })
+    return new Abortable(promise, aborter)
   }
 }
 
-export class Abortable<T> implements Promise<T> {
-  private aborter = new AbortController()
-  private promise: Promise<T>
+export interface Abortable<T> extends Promise<T> {
+  readonly promise: Promise<T>
+  readonly aborter: AbortController
+  abort(): void
+}
 
+export function isAbortable<T>(promise: Promise<T>): promise is Abortable<T> {
+  return typeof (promise as any).abort === "function"
+}
+
+export class Abortable<T> implements Abortable<T> {
   constructor(
+    readonly promise: Promise<T>,
+    readonly aborter: AbortController
+  ) { }
+
+  static create<T>(
     executor: (
       resolve: (value?: T | PromiseLike<T>) => void,
       reject: (reason?: any) => void,
       signal?: AbortSignal
     ) => (() => void) | void
   ) {
-    const { signal } = this.aborter
-    this.promise = new Promise<T>((resolve, reject) => {
+    const aborter = new AbortController()
+    const signal = aborter.signal
+
+    const promise = new Promise<T>((resolve, reject) => {
       const clean = executor(resolve, reject, signal)
 
       signal.onabort = () => {
@@ -46,6 +53,8 @@ export class Abortable<T> implements Promise<T> {
     }).finally(() => {
       signal.onabort = null
     })
+
+    return new this(promise, aborter)
   }
 
   abort() {
@@ -60,18 +69,21 @@ export class Abortable<T> implements Promise<T> {
     onfullfilled?: ((value: T) => TResult | PromiseLike<TResult>) | null,
     onrejected?: ((reason: any) => PromiseLike<TError>) | null
   ) {
-    return this.promise.then<TResult, TError>(onfullfilled, onrejected)
+    const promise = this.promise.then(onfullfilled, onrejected)
+    return new Abortable(promise, this.aborter)
   }
 
   catch<TError = never>(
     onrejected?: ((reason: any) => PromiseLike<TError>) | null
   ) {
-    return this.promise.catch<TError>(onrejected)
+    const promise = this.promise.catch(onrejected)
+    return new Abortable(promise, this.aborter)
   }
 
   finally(
     onfinally?: (() => void) | null
   ) {
-    return this.promise.finally(onfinally)
+    const promise = this.promise.finally(onfinally)
+    return new Abortable(promise, this.aborter)
   }
 }

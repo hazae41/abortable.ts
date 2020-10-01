@@ -1,6 +1,6 @@
 import { Abort, Abortable } from "../mod.ts";
 
-const first = new Abortable((ok, err) => {
+const first = Abortable.create((ok, err) => {
   const id = setTimeout(ok, 1000, "first")
 
   return () => {
@@ -9,7 +9,7 @@ const first = new Abortable((ok, err) => {
   }
 })
 
-const second = new Abortable((ok, err) => {
+const second = Abortable.create((ok, err) => {
   const id = setTimeout(ok, 2000, "second")
 
   return () => {

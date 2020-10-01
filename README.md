@@ -21,7 +21,7 @@ Race
 ```typescript
 import { Abortable } from "https://deno.land/x/abortable/mod.ts"
 
-const timeout = new Abortable((ok, err) => {
+const timeout = Abortable.create((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
 })
@@ -42,7 +42,7 @@ try{
 import { Abort, Abortable } from "https://deno.land/x/abortable/mod.ts"
 
 const request = Abort.fetch("...", { ... })
-request.abort()
+request.abort() // Will abort the request
 ```
 
 ## Usage with race
@@ -50,12 +50,12 @@ request.abort()
 ```typescript
 import { Abort, Abortable } from "https://deno.land/x/abortable/mod.ts"
 
-const first = new Abortable((ok, err) => {
+const first = Abortable.create((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
 })
 
-const second = new Abortable((ok, err) => {
+const second = Abortable.create((ok, err) => {
   const id = setTimeout(ok, 2000)
   return () => clearTimeout(id) // Abort function
 })
