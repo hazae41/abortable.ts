@@ -1,6 +1,6 @@
-import { Abortable } from "../mod.ts"
+import { Abort } from "../mod.ts"
 
-const timeout = Abortable.create((ok, err) => {
+const timeout = Abort.create((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
 })

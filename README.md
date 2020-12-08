@@ -21,9 +21,9 @@ Race
 Abortables are just Promises but with an abort() method and an abort function
 
 ```typescript
-import { Abortable } from "https://deno.land/x/abortable/mod.ts"
+import { Abort } from "https://deno.land/x/abortable/mod.ts"
 
-const timeout = Abortable.create((ok, err) => {
+const timeout = Abort.create((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
 })
@@ -70,12 +70,12 @@ Abortable is very useful for racing strategies where we want to abort loosers
 ```typescript
 import { Abort, Abortable } from "https://deno.land/x/abortable/mod.ts"
 
-const first = Abortable.create((ok, err) => {
+const first = Abort.create((ok, err) => {
   const id = setTimeout(ok, 1000)
   return () => clearTimeout(id) // Abort function
 })
 
-const second = Abortable.create((ok, err) => {
+const second = Abort.create((ok, err) => {
   const id = setTimeout(ok, 2000)
   return () => clearTimeout(id) // Abort function
 })
@@ -90,7 +90,7 @@ await Abort.race([first, second])
 The Abortable factory comes with an extra `signal` parameter that allows you to pass the signal to any third-party library that uses abort signals
 
 ```typescript
-const abortable = Abortable.create((ok, err, signal) => {
+const abortable = Abort.create((ok, err, signal) => {
   fetch("...", { signal }).then(ok, err)
   // No cleanup function since window.fetch is aborted by the signal
 })
